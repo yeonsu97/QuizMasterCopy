@@ -31,7 +31,8 @@ public class Quiz : MonoBehaviour
     [Header("ProgressBar")]
     [SerializeField] Slider progressBar;
 
-    public bool isComplete;
+    public bool isComplete = false;
+    //  false 안 쳐도 동일하게 본다.
 
     void Awake()
     {
@@ -44,22 +45,26 @@ public class Quiz : MonoBehaviour
     void Update()
     {
         timerImage.fillAmount = timer.fillFraction;
-        if (timer.loadNextQuestion)
+        // 타이머가 점점 줄어드는 애니메이션을 보이게 만듬
+        if (timer.loadNextQuestion == true)
+        // 다음 문제로 넘어가야 할 때
         {
             if (progressBar.value == progressBar.maxValue)
+            // 진행 바가 최대치에 도달하면 (모든 문제를 풀었을 때)
             {
                 isComplete = true;
-                return;
+                return; // 종료
             }
-
-            hasAnsweredEarly = false;
+            // 다음 문제로 넘어가기 전에 초기화 작업
+            hasAnsweredEarly = false; // 아직 정답을 고르지, 않음
             GetNextQuestion();
             timer.loadNextQuestion = false;
         }
         else if (!hasAnsweredEarly && !timer.isAnsweringQuestion)
+        // 아직 정답을 고르지 않았고 타이머가 문제를 푸는 중이 아니라면(시간초과)
         {
-            DisplayAnswer(-1);
-            SetButtonState(false);
+            DisplayAnswer(-1); // 아무 선택도 하지 않았다는 것을 표시
+            SetButtonState(false); // 버튼 비활성화
         }
     }
 
@@ -76,6 +81,7 @@ public class Quiz : MonoBehaviour
     {
         Image buttonImage;
         if (index == currentQuestion.GetCorrectAnswerIndex())
+        // 정답을 맞춘 경우
         {
             questionText.text = "Correct!";
             buttonImage = answerButtons[index].GetComponent<Image>();
@@ -83,6 +89,7 @@ public class Quiz : MonoBehaviour
             scoreKeeper.IncrementCorrectAnswers();
         }
         else
+        // 정답을 틀린 경우
         {
             correctAnswerIndex = currentQuestion.GetCorrectAnswerIndex();
             string correctAnswer = currentQuestion.GetAnswer(correctAnswerIndex);
